@@ -3,8 +3,9 @@
   Example based on Arduino examples 
 */
 
+
 String inputString = "";         // a String to hold incoming data
-char * cmd[4];
+String cmd = "";
 String operation = "";
 bool stringComplete = false;  // whether the string is complete
 
@@ -13,6 +14,7 @@ void setup() {
   Serial.begin(19200);
   // reserve 200 bytes for the inputString:
   inputString.reserve(200);
+  cmd.reserve(20);
 }
 
 void loop() {
@@ -21,7 +23,7 @@ void loop() {
   // print the string when a newline arrives:
 
   if (stringComplete) {
-    getCommand(inputString);
+   // getCommand();
 
  //   if (
 
@@ -29,8 +31,32 @@ void loop() {
 }
 
 
-//Find command type: READ, WRTE, HELP,  
-void getCommand(String inputString){
+//Find string up to the first empty space  
+void splitString(char toFind){
+
+    int iterator = 0;
+    int inputStrSize = 0;
+    int cmdStrSize = 0;
+    char currentChar = 0;
+    cmd = ""; // Reset cmd string
+
+    inputStrSize = inputString.length();
+    cmdStrSize = cmd.length();
+
+    do {
+
+        currentChar = inputString.charAt(iterator);
+        if (currentChar != toFind)
+        {
+            cmd.setCharAt(iterator,currentChar);
+        }
+        else {
+
+        }
+
+        iterator++;
+    } while (currentChar != toFind && iterator < inputStrSize && iterator < cmdStrSize );
+
 
 }
 
