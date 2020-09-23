@@ -10,99 +10,79 @@ String cmd = "";
 String remain = "";
 String operation = "";
 bool stringComplete = false;  // whether the string is complete
+uint8_t cmdIndex;
 
 void setup() {
   // initialize serial:
   Serial.begin(19200);
-  // reserve 200 bytes for the inputString:
   inputString.reserve(200);
   remain.reserve(100);
-  cmd.reserve(20);
+  cmd.reserve(50);
+  Serial.println("Enter your command: > ");
+  Serial.setTimeout(500);
+
+}
+
+
+
+// Read Serial Event same as Arduino Example 
+void serialEvent() {
+
+    if(Serial.available())
+    {
+        Serial.readBytesUntil('\n',&inputString[0], 120);
+        stringComplete = true; 
+    }
+
+}
+
+uint8_t matchPattern(String inStr, String *beforeStr, String *afterStr, char chrToFind){
+  uint8_t index;
+
+    index = inStr.indexOf(chrToFind);
+      if (index > 0){
+          *beforeStr = inStr.substring(0,index);
+          *afterStr = inStr.substring(index+1);
+          return index;
+      }
+      else
+      {
+        return -1; // Char not found in string
+      }
+      
+
 }
 
 
 void loop() {
   
-
   // print the string when a newline arrives:
-  Serial.println("some data before go to if");
-  delay(1500);
 
-  Serial.println(inputString); // echo back the data to Serial console
-  if (stringComplete) {
-   stringComplete = false;
-   //splitString(' '); //Find an emptySpace in the input String
+  inputString = Serial.readString();
+  if (inputString != ""){
+    
+    // find the command 
 
-   Serial.println("some data before go to if");
+     cmdIndex =  matchPattern(inputString, &cmd, &remain,' ');
 
-    if (inputString.equals("read")){
-      Serial.print("some data");
-      Serial.println("Read DIGITAL IO selected");
-
-    } 
-    else if (inputString.equalsIgnoreCase("set")){
-      Serial.println("Set DIGITAL IO selected");
-      //In here must go again to parse and select which port and which status
-
-    }
-    else if (inputString.equalsIgnoreCase("help")){
-      Serial.println("Use SET [PORT #] [ON/OFF]");
-      Serial.println("Use READ [PORT #] to verify the High / Low status");
-
-      }
-    else { // Default option 
-      Serial.println("default option executed");
-    }
-  
-    inputString = "";
-  }
-}
-
-
-//Find string up to the first empty space  
-void splitString(char toFind){
-// Find splitString and define the charToFind
-
-    int iterator = 0;
-    int inputStrSize = 0;
-    int cmdStrSize = 0;
-    char currentChar = 0;
-    cmd = ""; // Reset cmd string
-
-    inputStrSize = inputString.length();
-    cmdStrSize = cmd.length();
-
-    do {
-        currentChar = inputString.charAt(iterator);
-        if (currentChar != toFind)
+        if(cmdIndex >0)
+        { 
+          Serial.println("command found: ");
+          Serial.println(cmd);
+        }
+        else
         {
-            cmd.setCharAt(iterator,currentChar);
+          Serial.println("Wrong Sintax");
         }
-        else {
-            remain = inputString.substring(iterator,inputString.length());
-            break;
-        }
-        iterator++;
-    } while (currentChar != toFind && iterator < inputStrSize && iterator < cmdStrSize );
+        
+    //Serial.println(cmd); //Echo back
+    inputString=""; //Reset InputStr variable to pick a new instruction 
+    delay(200);
 
-
-}
-
-// Read Serial Event same as Arduino Example 
-void serialEvent() {
-  int iterator = 0;
-  while(Serial.available() == true) {
-    // get the new byte:
-    char inChar = (char)Serial.read();
-    // add it to the inputString:
-    inputString.setCharAt(iterator, inChar);
-    // if the incoming character is a newline, set a flag so the main loop can
-    // do something about it:
-    if (inChar == '\n') {
-      stringComplete = true;
-      break;
-    }
-    iterator++;
   }
-  stringComplete = true; 
+
+
 }
+
+
+
