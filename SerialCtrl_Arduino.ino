@@ -68,7 +68,10 @@ void loop() {
                 
                 if (remain.equalsIgnoreCase("on\n") || remain.equalsIgnoreCase("off\n")) // This one checks if the sintax is valid
                 {
-                    digitalWrite(LED_BUILTIN, strToBol(cmd));
+                    Serial.print("Set LED to:");
+                    Serial.print(cmd);
+                    Serial.println(remain);
+                    digitalWrite(LED_BUILTIN, strToBol(remain));
                 }
                 else
                 {
