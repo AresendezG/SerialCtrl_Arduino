@@ -9,32 +9,21 @@ String inputString = "";         // a String to hold incoming data
 String cmd = "";
 String remain = "";
 String operation = "";
-bool stringComplete = false;  // whether the string is complete
 uint8_t cmdIndex;
 
 void setup() {
+  //Enable built In LED ctrl 
+  pinMode(LED_BUILTIN, OUTPUT);
   // initialize serial:
   Serial.begin(19200);
   inputString.reserve(200);
   remain.reserve(100);
   cmd.reserve(50);
   Serial.println("Enter your command: > ");
-  Serial.setTimeout(500);
+  Serial.setTimeout(2500); // This timeout might not be important? 
 
 }
 
-
-
-// Read Serial Event same as Arduino Example 
-void serialEvent() {
-
-    if(Serial.available())
-    {
-        Serial.readBytesUntil('\n',&inputString[0], 120);
-        stringComplete = true; 
-    }
-
-}
 
 uint8_t matchPattern(String inStr, String *beforeStr, String *afterStr, char chrToFind){
   uint8_t index;
@@ -53,22 +42,52 @@ uint8_t matchPattern(String inStr, String *beforeStr, String *afterStr, char chr
 
 }
 
+//In this function, it will convert certain types of strings into TRUE or FALSE values
+bool strToBol(String inStr){
+  if (inStr.equalsIgnoreCase("on") || inStr.equalsIgnoreCase("on\n"))
+    return true;
+  else
+    return false;
+}
+
 
 void loop() {
   
-  // print the string when a newline arrives:
 
+  // Read a string from the serial Port 
   inputString = Serial.readString();
   if (inputString != ""){
     
     // find the command 
-
      cmdIndex =  matchPattern(inputString, &cmd, &remain,' ');
 
         if(cmdIndex >0)
         { 
           Serial.println("command found: ");
-          Serial.println(cmd);
+            if (cmd.compareTo("led")){
+                
+                if (remain.equalsIgnoreCase("on\n") || remain.equalsIgnoreCase("off\n")) // This one checks if the sintax is valid
+                {
+                    digitalWrite(LED_BUILTIN, strToBol(cmd));
+                }
+                else
+                {
+                  Serial.println("Wrong Sintax! ");
+                }
+                
+
+            }
+            else if(cmd.compareTo("read")){
+
+            }
+            
+            else if(cmd.compareTo("set")){
+
+            }
+
+            else {
+              Serial.println(cmd); //Echo back cmd
+            }
         }
         else
         {
@@ -80,7 +99,9 @@ void loop() {
     delay(200);
 
   }
-
+  else {
+    Serial.println("Enter your command >");
+  }
 
 }
 
